@@ -27,7 +27,7 @@ public class VehiclesCollection {
     public Vehicle getVehicleById(UUID vehicleId) throws VehicleNotFoundException {
         Document vehicleDocument = vehiclesCollection.find(Filters.eq("vehicleId", vehicleId)).first();
         if (vehicleDocument == null) {
-            throw new VehicleNotFoundException();
+            throw new VehicleNotFoundException("notFound");
         }
 
         Document driverDocument = (Document) vehicleDocument.get("driver");
@@ -35,7 +35,7 @@ public class VehiclesCollection {
         boolean driverVIPStatus = (boolean) driverDocument.get("vipStatus");
 
         String vehicleTypeString = (String) vehicleDocument.get("vehicleType");
-        VehicleType vehicleType = VehicleType.getVehicleTypeByName(vehicleTypeString);
+        VehicleType vehicleType = VehicleType.valueOf(vehicleTypeString);
         String color = (String) vehicleDocument.get("color");
         int price = (int) vehicleDocument.get("price");
         boolean electric = (boolean) vehicleDocument.get("electric");
@@ -58,7 +58,7 @@ public class VehiclesCollection {
 
         Document vehicleDocument = new Document();
         vehicleDocument.append("vehicleId", vehicle.getVehicleId());
-        vehicleDocument.append("vehicleType", vehicle.getVehicleType().getVehicleTypeName());
+        vehicleDocument.append("vehicleType", vehicle.getVehicleType().toString());
         vehicleDocument.append("color", vehicle.getColor());
         vehicleDocument.append("price", vehicle.getPrice());
         vehicleDocument.append("electric", vehicle.getElectric());

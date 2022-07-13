@@ -2,24 +2,23 @@ package com.robert.ParkingLot.parking;
 
 import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
-import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
-import com.robert.ParkingLot.exceptions.ParkingSpotNotOccupiedException;
-import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
+import com.robert.ParkingLot.exceptions.*;
 import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.strategy.TicketGenerator;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.vehicles.Car;
 import com.robert.ParkingLot.vehicles.Motorcycle;
 import com.robert.ParkingLot.vehicles.Vehicle;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 public class ParkingLotUnitTest {
-
     @Test
-    public void getCorrectParkingSpotIdAndVerifyMethodCalls() throws ParkingSpotNotFoundException, SimultaneousOperationInDatabaseCollectionException {
+    public void getCorrectParkingSpotIdAndVerifyMethodCalls() throws ParkingLotGeneralException {
         // Given
         ParkingSpotsCollection parkingSpotsCollection = mock(ParkingSpotsCollection.class);
         VehiclesCollection vehiclesCollection = mock(VehiclesCollection.class);
@@ -60,4 +59,5 @@ public class ParkingLotUnitTest {
 
         assertThrowsExactly(ParkingSpotNotOccupiedException.class, () -> parkingLotService.leaveParkingLot(0));
     }
+
 }

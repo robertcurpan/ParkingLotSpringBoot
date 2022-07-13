@@ -11,4 +11,13 @@ public class Ticket {
     public int getSpotId() { return spotId; }
     public Vehicle getVehicle() { return vehicle; }
     public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof Ticket) {
+            Ticket ticket = (Ticket) object;
+            return this.spotId == ticket.spotId && this.vehicle.equals(ticket.getVehicle());
+        }
+        return false;
+    }
 }

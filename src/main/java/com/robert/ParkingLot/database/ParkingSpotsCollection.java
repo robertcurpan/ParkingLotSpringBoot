@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
+import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
 import com.robert.ParkingLot.parking.ParkingSpot;
@@ -30,7 +31,7 @@ public class ParkingSpotsCollection {
     }
 
     // Preiau starea obiectului parkingSpot (care reprezinta starea finala) si actualizez in baza de date folosind aceasta stare
-    public void updateParkingSpotWhenDriverLeaves(ParkingSpot parkingSpot) throws SimultaneousOperationInDatabaseCollectionException, ParkingSpotNotFoundException {
+    public void updateParkingSpotWhenDriverLeaves(ParkingSpot parkingSpot) throws SimultaneousOperationInDatabaseCollectionException {
         // Trebuie sa facem locul "free" (eliberam locul de parcare)
         int version = parkingSpot.getVersion();
         Bson filterParkingSpotId = Filters.eq("parkingSpotId", parkingSpot.getId());
@@ -38,29 +39,27 @@ public class ParkingSpotsCollection {
 
         UpdateResult updateResult = parkingSpotsCollection.updateOne(Filters.and(filterParkingSpotId, filterVersion), Updates.combine(Updates.unset("vehicleId"), Updates.set("version", version + 1)));
         if(updateResult.getMatchedCount() == 0)
-            throw new SimultaneousOperationInDatabaseCollectionException();
-
+            throw new SimultaneousOperationInDatabaseCollectionException("optimisticLocking");
     }
 
-    public void updateParkingSpotWhenDriverParks(ParkingSpot parkingSpot) throws SimultaneousOperationInDatabaseCollectionException, ParkingSpotNotFoundException {
+    public void updateParkingSpotWhenDriverParks(ParkingSpot parkingSpot) throws SimultaneousOperationInDatabaseCollectionException {
         int version = parkingSpot.getVersion();
         Bson filterParkingSpotId = Filters.eq("parkingSpotId", parkingSpot.getId());
         Bson filterVersion = Filters.eq("version", version);
 
         UpdateResult updateResult = parkingSpotsCollection.updateOne(Filters.and(filterParkingSpotId, filterVersion), Updates.combine(Updates.set("vehicleId", parkingSpot.getVehicleId()), Updates.set("version", version + 1)));
         if(updateResult.getMatchedCount() == 0)
-            throw new SimultaneousOperationInDatabaseCollectionException();
-
+            throw new SimultaneousOperationInDatabaseCollectionException("optimisticLocking");
     }
 
-    public int getIdForAvailableParkingSpot(ParkingSpotType parkingSpotType, boolean electric) throws ParkingSpotNotFoundException {
-        Bson vehicleTypeFilter = Filters.eq("parkingSpotType", parkingSpotType.getParkingSpotTypeName());
+    public int getIdForAvailableParkingSpot(ParkingSpotType parkingSpotType, boolean electric) throws ParkingSpotNotAvailableException {
+        Bson vehicleTypeFilter = Filters.eq("parkingSpotType", parkingSpotType.toString());
         Bson electricFilter = Filters.eq("electricType", electric ? "electric" : "nonelectric");
         Bson freeFilter = Filters.not(Filters.exists("vehicleId"));
 
         Document parkingSpotDocument = parkingSpotsCollection.find(Filters.and(vehicleTypeFilter, electricFilter, freeFilter)).first();
         if(parkingSpotDocument == null) {
-            throw new ParkingSpotNotFoundException();
+            throw new ParkingSpotNotAvailableException("notAvailable");
         }
 
         // Am gasit un parking spot cu cerintele cautate
@@ -79,7 +78,7 @@ public class ParkingSpotsCollection {
             boolean electric = electricType.equals("electric");
             int version = (int) parkingSpotDocument.get("version");
             String parkingSpotTypeString = (String) parkingSpotDocument.get("parkingSpotType");
-            ParkingSpotType parkingSpotType = ParkingSpotType.getParkingSpotTypeByName(parkingSpotTypeString);
+            ParkingSpotType parkingSpotType = ParkingSpotType.valueOf(parkingSpotTypeString);
 
             parkingSpots.add(new ParkingSpot(spotId, vehicleId, parkingSpotType, electric, version));
         }
@@ -87,26 +86,17 @@ public class ParkingSpotsCollection {
         return parkingSpots;
     }
 
-    public int getNumberOfEmptySpotsForParkingSpotType(ParkingSpotType parkingSpotType) {
-        String parkingSpotTypeString = parkingSpotType.getParkingSpotTypeName();
-
-        Bson parkingSpotTypeFilter = Filters.eq("parkingSpotType", parkingSpotTypeString);
-        Bson freeFilter = Filters.not(Filters.exists("vehicleId"));
-        int numberOfEmptySpots = (int) parkingSpotsCollection.countDocuments(Filters.and(parkingSpotTypeFilter, freeFilter));
-        return numberOfEmptySpots;
-    }
-
     public ParkingSpot getParkingSpotById(int parkingSpotId) throws ParkingSpotNotFoundException {
         Bson filterId = Filters.eq("parkingSpotId", parkingSpotId);
         Document parkingSpotDocument = parkingSpotsCollection.find(filterId).first();
         if(parkingSpotDocument == null) {
-            throw new ParkingSpotNotFoundException();
+            throw new ParkingSpotNotFoundException("notFound");
         }
 
         UUID vehicleId = (UUID) parkingSpotDocument.get("vehicleId");
         String parkingSpotTypeString = (String) parkingSpotDocument.get("parkingSpotType");
         String electricString = (String) parkingSpotDocument.get("electricType");
-        ParkingSpotType parkingSpotType = ParkingSpotType.getParkingSpotTypeByName(parkingSpotTypeString);
+        ParkingSpotType parkingSpotType = ParkingSpotType.valueOf(parkingSpotTypeString);
         boolean electric = electricString.equals("electric");
         int version = (int) parkingSpotDocument.get("version");
 
@@ -122,55 +112,55 @@ public class ParkingSpotsCollection {
         Document document1 = new Document();
         document1.append("parkingSpotId", 7);
         document1.append("electricType", "electric");
-        document1.append("parkingSpotType", "Small");
+        document1.append("parkingSpotType", "SMALL");
         document1.append("version", 1);
 
         Document document2 = new Document();
         document2.append("parkingSpotId", 2);
         document2.append("electricType", "nonelectric");
-        document2.append("parkingSpotType", "Small");
+        document2.append("parkingSpotType", "SMALL");
         document2.append("version", 1);
 
         Document document3 = new Document();
         document3.append("parkingSpotId", 1);
         document3.append("electricType", "nonelectric");
-        document3.append("parkingSpotType", "Medium");
+        document3.append("parkingSpotType", "MEDIUM");
         document3.append("version", 1);
 
         Document document4 = new Document();
         document4.append("parkingSpotId", 3);
         document4.append("electricType", "nonelectric");
-        document4.append("parkingSpotType", "Medium");
+        document4.append("parkingSpotType", "MEDIUM");
         document4.append("version", 1);
 
         Document document5 = new Document();
         document5.append("parkingSpotId", 9);
         document5.append("electricType", "electric");
-        document5.append("parkingSpotType", "Medium");
+        document5.append("parkingSpotType", "MEDIUM");
         document5.append("version", 1);
 
         Document document6 = new Document();
         document6.append("parkingSpotId", 6);
         document6.append("electricType", "electric");
-        document6.append("parkingSpotType", "Large");
+        document6.append("parkingSpotType", "LARGE");
         document6.append("version", 1);
 
         Document document7 = new Document();
         document7.append("parkingSpotId", 5);
         document7.append("electricType", "electric");
-        document7.append("parkingSpotType", "Large");
+        document7.append("parkingSpotType", "LARGE");
         document7.append("version", 1);
 
         Document document8 = new Document();
         document8.append("parkingSpotId", 8);
         document8.append("electricType", "nonelectric");
-        document8.append("parkingSpotType", "Large");
+        document8.append("parkingSpotType", "LARGE");
         document8.append("version", 1);
 
         Document document9 = new Document();
         document9.append("parkingSpotId", 4);
         document9.append("electricType", "electric");
-        document9.append("parkingSpotType", "Large");
+        document9.append("parkingSpotType", "LARGE");
         document9.append("version", 1);
 
         parkingSpotsCollection.insertOne(document1);

@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.strategy.*;
 import com.robert.ParkingLot.vehicles.Car;
 import com.robert.ParkingLot.vehicles.Vehicle;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 public class TicketGeneratorCreatorUnitTest {
 
     @Test

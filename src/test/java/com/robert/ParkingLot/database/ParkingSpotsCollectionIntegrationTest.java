@@ -1,5 +1,6 @@
 package com.robert.ParkingLot.database;
 
+import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotOccupiedException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 public class ParkingSpotsCollectionIntegrationTest {
     public static final String NAME = "Robert";
     public static final boolean VIP_STATUS = false;
@@ -23,9 +26,6 @@ public class ParkingSpotsCollectionIntegrationTest {
     public static final int PRICE = 2000;
     public static final boolean ELECTRIC = false;
     public static final int ID = 1;
-
-    @Autowired
-    private Database database;
 
     @Autowired
     private ParkingSpotsCollection parkingSpotsCollection;
@@ -51,22 +51,7 @@ public class ParkingSpotsCollectionIntegrationTest {
     }
 
     @Test
-    public void getNoOfEmptySpotsForVehicleType() throws ParkingSpotNotFoundException, SimultaneousOperationInDatabaseCollectionException {
-        Driver driver = new Driver("Robert", false);
-        Vehicle vehicle1 = new Car(driver, "red", 2000, false);
-        Vehicle vehicle2 = new Car(driver, "red", 2000, false);
-        ParkingSpot parkingSpot1 = new ParkingSpot(1, vehicle1.getVehicleId(), TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle1.getVehicleType()), false, 1);
-        ParkingSpot parkingSpot2 = new ParkingSpot(3, vehicle2.getVehicleId(), TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle2.getVehicleType()), false, 1);
-
-        // Exista 3 locuri disponibile pt masina si ocupam 2, deci va ramane 1 liber
-        parkingSpotsCollection.updateParkingSpotWhenDriverParks(parkingSpot1);
-        parkingSpotsCollection.updateParkingSpotWhenDriverParks(parkingSpot2);
-
-        assertEquals(1, parkingSpotsCollection.getNumberOfEmptySpotsForParkingSpotType(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(VehicleType.CAR)));
-    }
-
-    @Test
-    public void getParkingSpotId() throws ParkingSpotNotFoundException {
+    public void getParkingSpotId() throws ParkingSpotNotFoundException, ParkingSpotNotAvailableException {
         assertEquals(7, parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(VehicleType.MOTORCYCLE), true));
     }
 

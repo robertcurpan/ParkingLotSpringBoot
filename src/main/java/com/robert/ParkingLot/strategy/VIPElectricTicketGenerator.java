@@ -2,6 +2,7 @@ package com.robert.ParkingLot.strategy;
 
 
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
+import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
 import com.robert.ParkingLot.parking.ParkingSpotType;
@@ -10,23 +11,23 @@ import com.robert.ParkingLot.vehicles.Vehicle;
 
 public class VIPElectricTicketGenerator implements TicketGenerator {
     @Override
-    public Ticket getTicket(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle) throws ParkingSpotNotFoundException, SimultaneousOperationInDatabaseCollectionException {
+    public Ticket getTicket(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle) throws SimultaneousOperationInDatabaseCollectionException, ParkingSpotNotAvailableException {
         int parkingSpotTypeId = TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()).ordinal();
         while (parkingSpotTypeId < ParkingSpotType.values().length) {
             try {
                 int idParkingSpot = findEmptyElectricSpotOnCurrentCategory(parkingSpotsCollection, vehicle, parkingSpotTypeId);
                 return new Ticket(idParkingSpot, vehicle);
-            } catch (ParkingSpotNotFoundException exception) {
+            } catch (ParkingSpotNotAvailableException exception) {
                 ++parkingSpotTypeId;
             }
 
         }
 
         // Daca nu am iesit cu "return" din while, inseamna ca nu am gasit un loc de parcare.
-        throw new ParkingSpotNotFoundException();
+        throw new ParkingSpotNotAvailableException("notAvailable");
     }
 
-    public int findEmptyElectricSpotOnCurrentCategory(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle, int parkingSpotTypeId) throws ParkingSpotNotFoundException {
+    public int findEmptyElectricSpotOnCurrentCategory(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle, int parkingSpotTypeId) throws ParkingSpotNotAvailableException {
         int idParkingSpot = parkingSpotsCollection.getIdForAvailableParkingSpot(ParkingSpotType.values()[parkingSpotTypeId], vehicle.getElectric());
         return idParkingSpot;
     }

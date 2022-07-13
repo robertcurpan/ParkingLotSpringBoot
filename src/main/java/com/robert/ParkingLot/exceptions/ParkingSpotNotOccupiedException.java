@@ -1,8 +1,7 @@
 package com.robert.ParkingLot.exceptions;
 
-public class ParkingSpotNotOccupiedException extends Exception
+public class ParkingSpotNotOccupiedException extends ParkingLotGeneralException
 {
-    private String message;
     public ParkingSpotNotOccupiedException()
     {
         message = "The parking spot is not occupied!";

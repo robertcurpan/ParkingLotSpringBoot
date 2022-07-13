@@ -3,13 +3,13 @@ package com.robert.ParkingLot.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
-import com.robert.ParkingLot.exceptions.ParkingSpotNotOccupiedException;
-import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
-import com.robert.ParkingLot.exceptions.VehicleNotFoundException;
+import com.robert.ParkingLot.exceptions.*;
+import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.parking.ParkingLotService;
 import com.robert.ParkingLot.parking.ParkingSpot;
+import com.robert.ParkingLot.parking.ParkingSpotType;
 import com.robert.ParkingLot.structures.Ticket;
+import com.robert.ParkingLot.vehicles.Car;
 import com.robert.ParkingLot.vehicles.CreateVehicleFromJsonUtil;
 import com.robert.ParkingLot.vehicles.Vehicle;
 import com.robert.ParkingLot.vehicles.VehicleJson;
@@ -26,20 +26,18 @@ public class ParkingLotController {
     @Autowired
     public ParkingLotService parkingLotService;
 
-    @PostMapping(value = "/getParkingTicket")
-    public Ticket getParkingTicket(@RequestBody VehicleJson vehicleJson) throws ParkingSpotNotFoundException, SimultaneousOperationInDatabaseCollectionException {
+    @PostMapping(value = "/generateParkingTicket")
+    public ResponseEntity<Ticket> generateParkingTicket(@RequestBody VehicleJson vehicleJson) throws ParkingLotGeneralException {
+        Ticket dummyTicket = new Ticket(0, new Car(new Driver("Robert", true), "red", 1000, true));
         Vehicle vehicle = CreateVehicleFromJsonUtil.createVehicle(vehicleJson);
-        return parkingLotService.getParkingTicket(vehicle);
+        Ticket ticket = parkingLotService.getParkingTicket(vehicle);
+        return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/leaveParkingLot/{idParkingSpot}")
-    public ResponseEntity<String> leaveParkingLot(@PathVariable String idParkingSpot) throws VehicleNotFoundException, ParkingSpotNotOccupiedException, ParkingSpotNotFoundException, SimultaneousOperationInDatabaseCollectionException, JsonProcessingException {
-        try {
-            Vehicle vehicle = parkingLotService.leaveParkingLot(Integer.parseInt(idParkingSpot));
-            return new ResponseEntity<String>(new ObjectMapper().writeValueAsString(vehicle), HttpStatus.OK);
-        } catch(ParkingSpotNotOccupiedException | ParkingSpotNotFoundException parkingSpotNotFoundException) {
-            return new ResponseEntity<String>("The vehicle with id: " + idParkingSpot + " does not exist!", HttpStatus.OK);
-        }
+    @PostMapping(value = "/leaveParkingLot")
+    public ResponseEntity<Ticket> leaveParkingLot(@RequestBody ParkingSpot parkingSpot) throws ParkingLotGeneralException {
+        Ticket ticket = parkingLotService.leaveParkingLot(parkingSpot.getId());
+        return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);
     }
 
     @GetMapping(value = "/getParkingSpots")
