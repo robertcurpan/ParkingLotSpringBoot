@@ -1,13 +1,9 @@
 package com.robert.ParkingLot.controller;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robert.ParkingLot.exceptions.*;
 import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.parking.ParkingLotService;
 import com.robert.ParkingLot.parking.ParkingSpot;
-import com.robert.ParkingLot.parking.ParkingSpotType;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.vehicles.Car;
 import com.robert.ParkingLot.vehicles.CreateVehicleFromJsonUtil;
@@ -19,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class ParkingLotController {
@@ -28,7 +23,6 @@ public class ParkingLotController {
 
     @PostMapping(value = "/generateParkingTicket")
     public ResponseEntity<Ticket> generateParkingTicket(@RequestBody VehicleJson vehicleJson) throws ParkingLotGeneralException {
-        Ticket dummyTicket = new Ticket(0, new Car(new Driver("Robert", true), "red", 1000, true));
         Vehicle vehicle = CreateVehicleFromJsonUtil.createVehicle(vehicleJson);
         Ticket ticket = parkingLotService.getParkingTicket(vehicle);
         return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);
@@ -46,7 +40,7 @@ public class ParkingLotController {
     }
 
     @GetMapping(value = "/getTickets")
-    public List<Ticket> getTickets() throws VehicleNotFoundException {
+    public List<Ticket> getTickets() {
         return parkingLotService.getTickets();
     }
 

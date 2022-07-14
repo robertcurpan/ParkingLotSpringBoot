@@ -1,5 +1,9 @@
 package com.robert.ParkingLot.parking;
 
+
+import dev.morphia.annotations.Entity;
+
+@Entity
 public class Driver {
     private String name;
     private boolean vipStatus;

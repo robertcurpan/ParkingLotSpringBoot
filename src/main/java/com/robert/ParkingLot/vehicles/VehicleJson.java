@@ -9,6 +9,18 @@ public class VehicleJson {
     private int price;
     private boolean electric;
 
+    public VehicleJson() {
+
+    }
+
+    public VehicleJson(String type, Driver driver, String color, int price, boolean electric) {
+        this.type = type;
+        this.driver = driver;
+        this.color = color;
+        this.price = price;
+        this.electric = electric;
+    }
+
     public String getType() { return type; }
     public Driver getDriver() { return driver; }
     public String getColor() { return color; }

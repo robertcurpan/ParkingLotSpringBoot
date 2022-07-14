@@ -1,8 +1,13 @@
 package com.robert.ParkingLot.parking;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
+
 import java.util.UUID;
 
+@Entity("parkingSpotInputs")
 public class ParkingSpot
 {
+    @Id
     private int id;
     private UUID vehicleId;
     private ParkingSpotType spotType;

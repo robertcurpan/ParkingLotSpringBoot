@@ -1,89 +1,63 @@
 package com.robert.ParkingLot.database;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
 import com.robert.ParkingLot.exceptions.VehicleNotFoundException;
-import com.robert.ParkingLot.factory.VehicleCreatorGenerator;
-import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.vehicles.Vehicle;
-import com.robert.ParkingLot.vehicles.VehicleType;
-import org.bson.Document;
+import dev.morphia.Datastore;
+import dev.morphia.DeleteOptions;
+import dev.morphia.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static dev.morphia.query.experimental.filters.Filters.eq;
+import static dev.morphia.query.experimental.filters.Filters.exists;
+
 @Component
 public class VehiclesCollection {
-    private MongoCollection<Document> vehiclesCollection;
-    // In the collection, we will have a vehicleId, a driver and the info of the vehicle
+    private Datastore vehiclesDatastore;
 
-    public VehiclesCollection(Database database) {
-        vehiclesCollection = database.getDatabase().getCollection("vehicles");
+    public VehiclesCollection(MorphiaDatabase morphiaDatabase) {
+        vehiclesDatastore = morphiaDatabase.getDatastore();
     }
 
     public Vehicle getVehicleById(UUID vehicleId) throws VehicleNotFoundException {
-        Document vehicleDocument = vehiclesCollection.find(Filters.eq("vehicleId", vehicleId)).first();
-        if (vehicleDocument == null) {
+        Query<Vehicle> vehicleQuery = vehiclesDatastore
+                .find(Vehicle.class)
+                .filter(eq("vehicleId", vehicleId));
+        Vehicle vehicle = vehicleQuery.first();
+
+        if(vehicle == null) {
             throw new VehicleNotFoundException("notFound");
         }
-
-        Document driverDocument = (Document) vehicleDocument.get("driver");
-        String driverName = (String) driverDocument.get("name");
-        boolean driverVIPStatus = (boolean) driverDocument.get("vipStatus");
-
-        String vehicleTypeString = (String) vehicleDocument.get("vehicleType");
-        VehicleType vehicleType = VehicleType.valueOf(vehicleTypeString);
-        String color = (String) vehicleDocument.get("color");
-        int price = (int) vehicleDocument.get("price");
-        boolean electric = (boolean) vehicleDocument.get("electric");
-
-        Driver driver = new Driver(driverName, driverVIPStatus);
-        Vehicle vehicle = VehicleCreatorGenerator.getVehicleCreator(vehicleType).getVehicle(driver, color, price, electric);
-        vehicle.setVehicleId(vehicleId);
 
         return vehicle;
     }
 
     public void removeVehicle(Vehicle vehicle) {
-        vehiclesCollection.deleteOne(Filters.eq("vehicleId", vehicle.getVehicleId()));
+        vehiclesDatastore
+                .find(Vehicle.class)
+                .filter(eq("vehicleId", vehicle.getVehicleId()))
+                .delete(new DeleteOptions().multi(false));
     }
 
     public void addVehicle(Vehicle vehicle) {
-        Document driverDocument = new Document();
-        driverDocument.append("name", vehicle.getDriver().getName());
-        driverDocument.append("vipStatus", vehicle.getDriver().getVipStatus());
-
-        Document vehicleDocument = new Document();
-        vehicleDocument.append("vehicleId", vehicle.getVehicleId());
-        vehicleDocument.append("vehicleType", vehicle.getVehicleType().toString());
-        vehicleDocument.append("color", vehicle.getColor());
-        vehicleDocument.append("price", vehicle.getPrice());
-        vehicleDocument.append("electric", vehicle.getElectric());
-        vehicleDocument.append("driver", driverDocument);
-
-        vehiclesCollection.insertOne(vehicleDocument);
+        vehiclesDatastore.save(vehicle);
     }
 
-    public List<Vehicle> getAllVehicles() throws VehicleNotFoundException {
-        List<Vehicle> vehicles = new ArrayList<>();
-
-        MongoCursor<Document> cursor = vehiclesCollection.find().iterator();
-        while(cursor.hasNext()) {
-            Document vehicleDocument = cursor.next();
-            UUID vehicleId = (UUID) vehicleDocument.get("vehicleId");
-            Vehicle vehicle = getVehicleById(vehicleId);
-
-            vehicles.add(vehicle);
-        }
+    public List<Vehicle> getAllVehicles() {
+        List<Vehicle> vehicles = vehiclesDatastore
+                .find(Vehicle.class)
+                .filter(exists("vehicleId"))
+                .iterator()
+                .toList();
 
         return vehicles;
     }
 
     public void resetVehiclesCollection() {
-        vehiclesCollection.deleteMany(new Document());
+        vehiclesDatastore.find(Vehicle.class)
+                .delete(new DeleteOptions().multi(true));
     }
 
 }

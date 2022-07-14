@@ -2,11 +2,15 @@ package com.robert.ParkingLot.vehicles;
 
 
 import com.robert.ParkingLot.parking.Driver;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
 
 import java.util.UUID;
 
+@Entity("vehicles")
 public abstract class Vehicle
 {
+    @Id
     protected UUID vehicleId;
     protected VehicleType type;
     protected Driver driver;
