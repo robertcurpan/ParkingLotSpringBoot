@@ -1,17 +1,13 @@
 package com.robert.ParkingLot.strategy;
 
-import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
 import com.robert.ParkingLot.exceptions.ParkingLotGeneralException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
-import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
-import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
 import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.parking.*;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.vehicles.Motorcycle;
 import com.robert.ParkingLot.vehicles.Vehicle;
-import com.robert.ParkingLot.vehicles.VehicleType;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,12 +30,12 @@ public class ElectricTicketGeneratorUnitTest {
         Ticket ticket;
 
         // When
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), vehicle.getElectric())).thenReturn(9);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), vehicle.getElectric())).thenReturn(new ParkingSpot(9, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(9, ticket.getSpotId());
+        assertEquals(9, ticket.getParkingSpot().getId());
 
         // getParkingSpotId() arunca RuntimeException (aceasta e prinsa in ElectricTicketGenerator si in catch se arunca ParkingSpotNotFoundException)
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), vehicle.getElectric())).thenThrow(new ParkingSpotNotAvailableException());
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), vehicle.getElectric())).thenThrow(new ParkingSpotNotAvailableException());
         assertThrowsExactly(ParkingSpotNotAvailableException.class, () -> ticketGenerator.getTicket(parkingSpotsCollection, vehicle)); // nu mai exista locuri libere pt un sofer non-vip cu masina electrica
     }
 

@@ -5,6 +5,7 @@ import com.robert.ParkingLot.database.ParkingSpotsCollection;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
+import com.robert.ParkingLot.parking.ParkingSpot;
 import com.robert.ParkingLot.parking.ParkingSpotType;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.vehicles.Vehicle;
@@ -15,8 +16,8 @@ public class VIPElectricTicketGenerator implements TicketGenerator {
         int parkingSpotTypeId = TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()).ordinal();
         while (parkingSpotTypeId < ParkingSpotType.values().length) {
             try {
-                int idParkingSpot = findEmptyElectricSpotOnCurrentCategory(parkingSpotsCollection, vehicle, parkingSpotTypeId);
-                return new Ticket(idParkingSpot, vehicle);
+                ParkingSpot parkingSpot = findEmptyElectricSpotOnCurrentCategory(parkingSpotsCollection, vehicle, parkingSpotTypeId);
+                return new Ticket(parkingSpot, vehicle);
             } catch (ParkingSpotNotAvailableException exception) {
                 ++parkingSpotTypeId;
             }
@@ -27,9 +28,9 @@ public class VIPElectricTicketGenerator implements TicketGenerator {
         throw new ParkingSpotNotAvailableException("notAvailable");
     }
 
-    public int findEmptyElectricSpotOnCurrentCategory(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle, int parkingSpotTypeId) throws ParkingSpotNotAvailableException {
-        int idParkingSpot = parkingSpotsCollection.getIdForAvailableParkingSpot(ParkingSpotType.values()[parkingSpotTypeId], vehicle.getElectric());
-        return idParkingSpot;
+    public ParkingSpot findEmptyElectricSpotOnCurrentCategory(ParkingSpotsCollection parkingSpotsCollection, Vehicle vehicle, int parkingSpotTypeId) throws ParkingSpotNotAvailableException {
+        ParkingSpot parkingSpot = parkingSpotsCollection.getAvailableParkingSpot(ParkingSpotType.values()[parkingSpotTypeId], vehicle.getElectric());
+        return parkingSpot;
     }
 
 }

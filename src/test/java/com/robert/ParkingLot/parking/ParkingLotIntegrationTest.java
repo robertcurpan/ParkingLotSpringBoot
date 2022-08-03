@@ -55,7 +55,7 @@ public class ParkingLotIntegrationTest
         Ticket parkingTicket = parkingLotService.getParkingTicket(vehicle);
 
         // 3) Then (asserturi)
-        assertEquals(1, parkingTicket.getSpotId());
+        assertEquals(1, parkingTicket.getParkingSpot().getId());
     }
 
     @Test
@@ -66,10 +66,11 @@ public class ParkingLotIntegrationTest
 
         // 2) When
         Ticket ticket = parkingLotService.getParkingTicket(vehicle);
-        Ticket ticketLeft = parkingLotService.leaveParkingLot(ticket.getSpotId());
+        Ticket ticketLeft = parkingLotService.leaveParkingLot(ticket.getParkingSpot().getId());
 
         // 3) Then
-        assertEquals(ticket, ticketLeft);
+        assertEquals(ticket.getParkingSpot().getId(), ticketLeft.getParkingSpot().getId());
+        assertEquals(ticket.getVehicle(), ticketLeft.getVehicle());
     }
 
 }

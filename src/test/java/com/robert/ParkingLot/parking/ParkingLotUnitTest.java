@@ -33,7 +33,7 @@ public class ParkingLotUnitTest {
 
         when(ticketGeneratorCreator.getTicketGenerator(vehicle)).thenReturn(ticketGenerator);
         when(ticketGenerator.getTicket(parkingSpotsCollection, vehicle)).thenReturn(ticketMock);
-        when(parkingSpotsCollection.getParkingSpotById(0)).thenReturn(parkingSpotMock);
+        when(ticketMock.getParkingSpot()).thenReturn(parkingSpotMock);
 
         // When
         Ticket ticket = parkingLotService.getParkingTicket(vehicle);

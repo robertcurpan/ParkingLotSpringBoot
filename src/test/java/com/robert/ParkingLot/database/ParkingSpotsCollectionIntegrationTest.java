@@ -52,7 +52,7 @@ public class ParkingSpotsCollectionIntegrationTest {
 
     @Test
     public void getParkingSpotId() throws ParkingSpotNotFoundException, ParkingSpotNotAvailableException {
-        assertEquals(7, parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(VehicleType.MOTORCYCLE), true));
+        assertEquals(7, parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(VehicleType.MOTORCYCLE), true).getId());
     }
 
     @Test

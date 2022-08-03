@@ -5,6 +5,7 @@ import com.robert.ParkingLot.database.ParkingSpotsCollection;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
+import com.robert.ParkingLot.parking.ParkingSpot;
 import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.parking.ParkingSpotType;
@@ -34,21 +35,21 @@ public class VIPRegularTicketGeneratorUnitTest {
         Ticket ticket;
 
         // When
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(2);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(new ParkingSpot(2, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(2, ticket.getSpotId());
+        assertEquals(2, ticket.getParkingSpot().getId());
 
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(1);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(new ParkingSpot(1, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(1, ticket.getSpotId());
+        assertEquals(1, ticket.getParkingSpot().getId());
 
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(3);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(new ParkingSpot(3, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(3, ticket.getSpotId());
+        assertEquals(3, ticket.getParkingSpot().getId());
 
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(8);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), false)).thenReturn(new ParkingSpot(8, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(8, ticket.getSpotId());
+        assertEquals(8, ticket.getParkingSpot().getId());
     }
 
     @Test
@@ -59,7 +60,7 @@ public class VIPRegularTicketGeneratorUnitTest {
 
         TicketGenerator ticketGenerator = new VIPRegularTicketGenerator();
 
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(any(ParkingSpotType.class), eq(vehicle.getElectric()))).thenThrow(new ParkingSpotNotAvailableException());
+        when(parkingSpotsCollection.getAvailableParkingSpot(any(ParkingSpotType.class), eq(vehicle.getElectric()))).thenThrow(new ParkingSpotNotAvailableException());
         assertThrowsExactly(ParkingSpotNotAvailableException.class, () -> ticketGenerator.getTicket(parkingSpotsCollection, vehicle));
     }
 }

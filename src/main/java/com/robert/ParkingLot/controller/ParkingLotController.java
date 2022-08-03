@@ -22,6 +22,7 @@ public class ParkingLotController {
     public ParkingLotService parkingLotService;
 
     @PostMapping(value = "/generateParkingTicket")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     public ResponseEntity<Ticket> generateParkingTicket(@RequestBody VehicleJson vehicleJson) throws ParkingLotGeneralException {
         Vehicle vehicle = CreateVehicleFromJsonUtil.createVehicle(vehicleJson);
         Ticket ticket = parkingLotService.getParkingTicket(vehicle);
@@ -29,6 +30,7 @@ public class ParkingLotController {
     }
 
     @PostMapping(value = "/leaveParkingLot")
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     public ResponseEntity<Ticket> leaveParkingLot(@RequestBody ParkingSpot parkingSpot) throws ParkingLotGeneralException {
         Ticket ticket = parkingLotService.leaveParkingLot(parkingSpot.getId());
         return new ResponseEntity<Ticket>(ticket, HttpStatus.OK);

@@ -1,4 +1,5 @@
 package com.robert.ParkingLot.parking;
+import com.robert.ParkingLot.vehicles.Vehicle;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 
@@ -36,6 +37,24 @@ public class ParkingSpot
     public void setElectric(boolean electric) { this.electric = electric; }
     public void setVersion(int version) { this.version = version; }
 
+    public void updateWhenOccupiedByVehicle(Vehicle vehicle) {
+        vehicleId = vehicle.getVehicleId();
+        ++version;
+    }
+
+    public void updateWhenLeftByVehicle() {
+        vehicleId = null;
+        ++version;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if(object instanceof ParkingSpot) {
+            ParkingSpot parkingSpot = (ParkingSpot) object;
+            return this.id == parkingSpot.id && this.vehicleId == parkingSpot.vehicleId && this.spotType == parkingSpot.spotType && this.electric == parkingSpot.electric && this.version == parkingSpot.version;
+        }
+        return false;
+    }
     @Override
     public String toString()
     {

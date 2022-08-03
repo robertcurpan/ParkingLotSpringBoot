@@ -28,10 +28,10 @@ public class ParkingLotService {
         doBusinessValidations(vehicle);
         TicketGenerator ticketGenerator = ticketGeneratorCreator.getTicketGenerator(vehicle);
         Ticket ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        ParkingSpot parkingSpot = parkingSpotsCollection.getParkingSpotById(ticket.getSpotId());
-        parkingSpot.setVehicleId(vehicle.getVehicleId()); // nu putem seta id-ul din interfata, asa ca il setam aici (mapare 1:1 dintre parkingSpotId si vehicleId)
-        parkingSpotsCollection.updateParkingSpotWhenDriverParks(parkingSpot);
+        ticket.getParkingSpot().setVehicleId(vehicle.getVehicleId());
+        parkingSpotsCollection.updateParkingSpotWhenDriverParks(ticket.getParkingSpot());
         vehiclesCollection.addVehicle(vehicle);
+        ticket.getParkingSpot().updateWhenOccupiedByVehicle(vehicle);
         return ticket;
     }
 
@@ -41,7 +41,8 @@ public class ParkingLotService {
             Vehicle vehicle = vehiclesCollection.getVehicleById(parkingSpot.getVehicleId());
             parkingSpotsCollection.updateParkingSpotWhenDriverLeaves(parkingSpot);  // o functie din colectia bazei de date trebuie sa stie doar operatii CRUD (valorile atributelor ce trebuie actualizate le ia din obiectul dat ca parametru - parkingSpot.isFree())
             vehiclesCollection.removeVehicle(vehicle);
-            return new Ticket(idParkingSpot, vehicle);
+            parkingSpot.updateWhenLeftByVehicle();
+            return new Ticket(parkingSpot, vehicle);
         }
 
         throw new ParkingSpotNotOccupiedException("notOccupied");
@@ -55,7 +56,7 @@ public class ParkingLotService {
         for(Vehicle vehicle : vehicles) {
             for(ParkingSpot parkingSpot : parkingSpots) {
                 if(vehicle.getVehicleId().equals(parkingSpot.getVehicleId())) {
-                    tickets.add(new Ticket(parkingSpot.getId(), vehicle));
+                    tickets.add(new Ticket(parkingSpot, vehicle));
                 }
             }
         }

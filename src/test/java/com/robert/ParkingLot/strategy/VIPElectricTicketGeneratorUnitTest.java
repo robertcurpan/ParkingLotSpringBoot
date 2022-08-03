@@ -4,6 +4,7 @@ import com.robert.ParkingLot.database.ParkingSpotsCollection;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotAvailableException;
 import com.robert.ParkingLot.exceptions.ParkingSpotNotFoundException;
 import com.robert.ParkingLot.exceptions.SimultaneousOperationInDatabaseCollectionException;
+import com.robert.ParkingLot.parking.ParkingSpot;
 import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.parking.ParkingSpotType;
@@ -37,13 +38,13 @@ public class VIPElectricTicketGeneratorUnitTest {
         Ticket ticket;
 
         // When, Then
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), true)).thenReturn(7);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), true)).thenReturn(new ParkingSpot(7, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(7, ticket.getSpotId());
+        assertEquals(7, ticket.getParkingSpot().getId());
 
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), true)).thenReturn(9);
+        when(parkingSpotsCollection.getAvailableParkingSpot(TicketGeneratorUtil.getSmallestFittingParkingSpotTypeFromVehicleType(vehicle.getVehicleType()), true)).thenReturn(new ParkingSpot(9, null, ParkingSpotType.SMALL, true, 0));
         ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
-        assertEquals(9, ticket.getSpotId());
+        assertEquals(9, ticket.getParkingSpot().getId());
     }
 
     @Test
@@ -55,7 +56,7 @@ public class VIPElectricTicketGeneratorUnitTest {
         TicketGenerator ticketGenerator = new VIPElectricTicketGenerator();
 
         //TODO se poate si cu mai multe when-uri
-        when(parkingSpotsCollection.getIdForAvailableParkingSpot(any(ParkingSpotType.class), eq(vehicle.getElectric()))).thenThrow(new ParkingSpotNotAvailableException());
+        when(parkingSpotsCollection.getAvailableParkingSpot(any(ParkingSpotType.class), eq(vehicle.getElectric()))).thenThrow(new ParkingSpotNotAvailableException());
         assertThrowsExactly(ParkingSpotNotAvailableException.class, () -> ticketGenerator.getTicket(parkingSpotsCollection, vehicle));
     }
 }

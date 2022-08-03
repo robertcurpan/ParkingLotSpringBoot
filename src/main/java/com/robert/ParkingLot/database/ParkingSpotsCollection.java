@@ -58,7 +58,7 @@ public class ParkingSpotsCollection {
             throw new SimultaneousOperationInDatabaseCollectionException("optimisticLocking");
     }
 
-    public int getIdForAvailableParkingSpot(ParkingSpotType parkingSpotType, boolean electric) throws ParkingSpotNotAvailableException {
+    public ParkingSpot getAvailableParkingSpot(ParkingSpotType parkingSpotType, boolean electric) throws ParkingSpotNotAvailableException {
         Query<ParkingSpot> parkingSpotQuery = parkingSpotsDatastore
                 .find(ParkingSpot.class)
                 .filter(eq("spotType", parkingSpotType))
@@ -70,7 +70,7 @@ public class ParkingSpotsCollection {
             throw new ParkingSpotNotAvailableException("notAvailable");
         }
 
-        return parkingSpot.getId();
+        return parkingSpot;
     }
 
     public List<ParkingSpot> getParkingSpots() {
