@@ -17,6 +17,7 @@ public class MorphiaDatabase {
         datastore = Morphia.createDatastore(MongoClients.create(clientSettings), databaseName);
         datastore.getMapper().mapPackage("com.robert.ParkingLot.parking");
         datastore.getMapper().mapPackage("com.robert.ParkingLot.vehicles");
+        datastore.getMapper().mapPackage("com.robert.ParkingLot.structures");
         datastore.ensureIndexes();
     }
 

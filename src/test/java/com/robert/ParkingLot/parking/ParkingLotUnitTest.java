@@ -1,5 +1,6 @@
 package com.robert.ParkingLot.parking;
 
+import com.robert.ParkingLot.database.TicketsCollection;
 import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
 import com.robert.ParkingLot.exceptions.*;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import com.robert.ParkingLot.strategy.TicketGenerator;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.vehicles.Car;
-import com.robert.ParkingLot.vehicles.Motorcycle;
 import com.robert.ParkingLot.vehicles.Vehicle;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -22,12 +22,13 @@ public class ParkingLotUnitTest {
         // Given
         ParkingSpotsCollection parkingSpotsCollection = mock(ParkingSpotsCollection.class);
         VehiclesCollection vehiclesCollection = mock(VehiclesCollection.class);
+        TicketsCollection ticketsCollection = mock(TicketsCollection.class);
         TicketGeneratorCreator ticketGeneratorCreator = mock(TicketGeneratorCreator.class);
         TicketGenerator ticketGenerator = mock(TicketGenerator.class);
         Ticket ticketMock = mock(Ticket.class);
         ParkingSpot parkingSpotMock = mock(ParkingSpot.class);
 
-        ParkingLotService parkingLotService = new ParkingLotService(ticketGeneratorCreator, parkingSpotsCollection, vehiclesCollection);
+        ParkingLotService parkingLotService = new ParkingLotService(ticketGeneratorCreator, parkingSpotsCollection, vehiclesCollection, ticketsCollection);
         Driver driver = new Driver("Robert", false);
         Vehicle vehicle = new Car(driver, "red", 2000, false);
 
@@ -36,7 +37,7 @@ public class ParkingLotUnitTest {
         when(ticketMock.getParkingSpot()).thenReturn(parkingSpotMock);
 
         // When
-        Ticket ticket = parkingLotService.getParkingTicket(vehicle);
+        Ticket ticket = parkingLotService.generateParkingTicket(vehicle);
 
         // Then
         verify(ticketGeneratorCreator).getTicketGenerator(vehicle); // verific ca atunci cand se apeleaza getParkingTicket apeleaza metoda getTicketGenerator
@@ -50,9 +51,10 @@ public class ParkingLotUnitTest {
         // Given
         ParkingSpotsCollection parkingSpotsCollection = mock(ParkingSpotsCollection.class);
         VehiclesCollection vehiclesCollection = mock(VehiclesCollection.class);
+        TicketsCollection ticketsCollection = mock(TicketsCollection.class);
         TicketGeneratorCreator ticketGeneratorCreator = mock(TicketGeneratorCreator.class);
         ParkingSpot parkingSpot = mock(ParkingSpot.class);
-        ParkingLotService parkingLotService = new ParkingLotService(ticketGeneratorCreator, parkingSpotsCollection, vehiclesCollection);
+        ParkingLotService parkingLotService = new ParkingLotService(ticketGeneratorCreator, parkingSpotsCollection, vehiclesCollection, ticketsCollection);
 
         when(parkingSpotsCollection.getParkingSpotById(0)).thenReturn(parkingSpot);
         when(parkingSpotsCollection.isParkingSpotFree(parkingSpot)).thenReturn(true);

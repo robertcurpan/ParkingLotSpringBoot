@@ -52,7 +52,7 @@ public class ParkingLotIntegrationTest
         Vehicle vehicle = new Car(driver, "red", 2000, false);
 
         // 2) When
-        Ticket parkingTicket = parkingLotService.getParkingTicket(vehicle);
+        Ticket parkingTicket = parkingLotService.generateParkingTicket(vehicle);
 
         // 3) Then (asserturi)
         assertEquals(1, parkingTicket.getParkingSpot().getId());
@@ -65,7 +65,7 @@ public class ParkingLotIntegrationTest
         Vehicle vehicle = new Car(driver, "red", 2000, false);
 
         // 2) When
-        Ticket ticket = parkingLotService.getParkingTicket(vehicle);
+        Ticket ticket = parkingLotService.generateParkingTicket(vehicle);
         Ticket ticketLeft = parkingLotService.leaveParkingLot(ticket.getParkingSpot().getId());
 
         // 3) Then

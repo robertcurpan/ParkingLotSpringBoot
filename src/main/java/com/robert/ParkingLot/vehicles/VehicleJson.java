@@ -3,7 +3,7 @@ package com.robert.ParkingLot.vehicles;
 import com.robert.ParkingLot.parking.Driver;
 
 public class VehicleJson {
-    private String type;
+    private String vehicleType;
     private Driver driver;
     private String color;
     private int price;
@@ -13,21 +13,21 @@ public class VehicleJson {
 
     }
 
-    public VehicleJson(String type, Driver driver, String color, int price, boolean electric) {
-        this.type = type;
+    public VehicleJson(String vehicleType, Driver driver, String color, int price, boolean electric) {
+        this.vehicleType = vehicleType;
         this.driver = driver;
         this.color = color;
         this.price = price;
         this.electric = electric;
     }
 
-    public String getType() { return type; }
+    public String getVehicleType() { return vehicleType; }
     public Driver getDriver() { return driver; }
     public String getColor() { return color; }
     public int getPrice() { return price; }
     public boolean getElectric() { return electric; }
 
-    public void setType(String type) { this.type = type; }
+    public void setVehicleType(String vehicleType) { this.vehicleType = vehicleType; }
     public void setDriver(Driver driver) { this.driver = driver; }
     public void setColor(String color) { this.color = color; }
     public void setPrice(int price) { this.price = price; }
@@ -35,6 +35,6 @@ public class VehicleJson {
 
     @Override
     public String toString() {
-        return type + " / " + driver.toString() + " / " + color + " / " + price + " / " + electric + "\n";
+        return vehicleType + " / " + driver.toString() + " / " + color + " / " + price + " / " + electric + "\n";
     }
 }

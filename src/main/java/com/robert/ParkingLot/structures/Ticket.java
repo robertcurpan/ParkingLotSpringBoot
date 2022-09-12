@@ -1,16 +1,33 @@
 package com.robert.ParkingLot.structures;
 
 import com.robert.ParkingLot.parking.ParkingSpot;
+import com.robert.ParkingLot.utils.CurrentDateUtil;
 import com.robert.ParkingLot.vehicles.Vehicle;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
 
+import java.util.Date;
+import java.util.UUID;
+
+@Entity("tickets")
 public class Ticket {
+    @Id
+    private UUID ticketId;
     private ParkingSpot parkingSpot;
     private Vehicle vehicle;
+    private String date;
 
-    public Ticket(ParkingSpot parkingSpot, Vehicle vehicle) { this.parkingSpot = parkingSpot; this.vehicle = vehicle; }
+    public Ticket(ParkingSpot parkingSpot, Vehicle vehicle) {
+        this.parkingSpot = parkingSpot;
+        this.vehicle = vehicle;
+        this.date = CurrentDateUtil.getCurrentDateCustomFormatAsString();
+        ticketId = UUID.randomUUID();
+    }
 
     public ParkingSpot getParkingSpot() { return parkingSpot; }
     public Vehicle getVehicle() { return vehicle; }
+    public UUID getTicketId() { return ticketId; }
+    public String getDate() { return date; }
     public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
 
     @Override

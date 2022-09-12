@@ -1,6 +1,7 @@
 package com.robert.ParkingLot.parking;
 
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
+import com.robert.ParkingLot.database.TicketsCollection;
 import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.exceptions.*;
 import com.robert.ParkingLot.strategy.TicketGenerator;
@@ -17,14 +18,16 @@ public class ParkingLotService {
     private TicketGeneratorCreator ticketGeneratorCreator;
     private ParkingSpotsCollection parkingSpotsCollection;
     private VehiclesCollection vehiclesCollection;
+    private TicketsCollection ticketsCollection;
 
-    public ParkingLotService(TicketGeneratorCreator ticketGeneratorCreator, ParkingSpotsCollection parkingSpotsCollection, VehiclesCollection vehiclesCollection) {
+    public ParkingLotService(TicketGeneratorCreator ticketGeneratorCreator, ParkingSpotsCollection parkingSpotsCollection, VehiclesCollection vehiclesCollection, TicketsCollection ticketsCollection) {
         this.ticketGeneratorCreator = ticketGeneratorCreator;
         this.parkingSpotsCollection = parkingSpotsCollection;
         this.vehiclesCollection = vehiclesCollection;
+        this.ticketsCollection = ticketsCollection;
     }
 
-    public Ticket getParkingTicket(Vehicle vehicle) throws ParkingLotGeneralException {
+    public Ticket generateParkingTicket(Vehicle vehicle) throws ParkingLotGeneralException {
         doBusinessValidations(vehicle);
         TicketGenerator ticketGenerator = ticketGeneratorCreator.getTicketGenerator(vehicle);
         Ticket ticket = ticketGenerator.getTicket(parkingSpotsCollection, vehicle);
@@ -32,6 +35,7 @@ public class ParkingLotService {
         parkingSpotsCollection.updateParkingSpotWhenDriverParks(ticket.getParkingSpot());
         vehiclesCollection.addVehicle(vehicle);
         ticket.getParkingSpot().updateWhenOccupiedByVehicle(vehicle);
+        ticketsCollection.addTicket(ticket);
         return ticket;
     }
 
@@ -41,6 +45,7 @@ public class ParkingLotService {
             Vehicle vehicle = vehiclesCollection.getVehicleById(parkingSpot.getVehicleId());
             parkingSpotsCollection.updateParkingSpotWhenDriverLeaves(parkingSpot);  // o functie din colectia bazei de date trebuie sa stie doar operatii CRUD (valorile atributelor ce trebuie actualizate le ia din obiectul dat ca parametru - parkingSpot.isFree())
             vehiclesCollection.removeVehicle(vehicle);
+            ticketsCollection.removeTicked(parkingSpot);
             parkingSpot.updateWhenLeftByVehicle();
             return new Ticket(parkingSpot, vehicle);
         }
@@ -49,18 +54,7 @@ public class ParkingLotService {
     }
 
     public List<Ticket> getTickets() {
-        List<Ticket> tickets = new ArrayList<>();
-        List<Vehicle> vehicles = vehiclesCollection.getAllVehicles();
-        List<ParkingSpot> parkingSpots = parkingSpotsCollection.getParkingSpots();
-
-        for(Vehicle vehicle : vehicles) {
-            for(ParkingSpot parkingSpot : parkingSpots) {
-                if(vehicle.getVehicleId().equals(parkingSpot.getVehicleId())) {
-                    tickets.add(new Ticket(parkingSpot, vehicle));
-                }
-            }
-        }
-
+        List<Ticket> tickets = ticketsCollection.getTickets();
         return tickets;
     }
 
