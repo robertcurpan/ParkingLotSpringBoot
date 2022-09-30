@@ -5,6 +5,7 @@ import com.robert.ParkingLot.exceptions.*;
 import com.robert.ParkingLot.parking.ParkingLotService;
 import com.robert.ParkingLot.parking.ParkingSpot;
 import com.robert.ParkingLot.authentication.AuthorizationResponse;
+import com.robert.ParkingLot.structures.StandardMessage;
 import com.robert.ParkingLot.structures.Ticket;
 import com.robert.ParkingLot.authentication.UserDetails;
 import com.robert.ParkingLot.structures.User;
@@ -14,6 +15,7 @@ import com.robert.ParkingLot.vehicles.VehicleJson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,5 +63,14 @@ public class ParkingLotController {
         User user = authenticationService.getUserByUsername(userDetails.getUsername());
         AuthorizationResponse authorizationResponse = new AuthorizationResponse(jwt, user.getAccountType());
         return new ResponseEntity<AuthorizationResponse>(authorizationResponse, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/register")
+    @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:4200"})
+    public ResponseEntity<StandardMessage> register(@RequestBody UserDetails userDetails) throws ParkingLotGeneralException {
+        String hashedPassword = BCrypt.hashpw(userDetails.getPassword(), BCrypt.gensalt(10));
+        authenticationService.registerUser(new User(userDetails.getUsername(), hashedPassword, "user"));
+        StandardMessage response = new StandardMessage("Successfully registered!");
+        return new ResponseEntity<StandardMessage>(response, HttpStatus.OK);
     }
 }

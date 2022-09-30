@@ -49,4 +49,8 @@ public class AuthenticationService {
         throw new RuntimeException();
     }
 
+    public void registerUser(User user) {
+        usersCollection.addUser(user);
+    }
+
 }

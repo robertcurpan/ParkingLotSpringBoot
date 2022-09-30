@@ -6,6 +6,7 @@ import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.exceptions.*;
 import com.robert.ParkingLot.strategy.TicketGenerator;
 import com.robert.ParkingLot.structures.Ticket;
+import com.robert.ParkingLot.vehicles.Motorcycle;
 import com.robert.ParkingLot.vehicles.Vehicle;
 import org.springframework.stereotype.Service;
 

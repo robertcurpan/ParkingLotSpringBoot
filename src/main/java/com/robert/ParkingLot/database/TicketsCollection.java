@@ -2,6 +2,7 @@ package com.robert.ParkingLot.database;
 
 import com.robert.ParkingLot.parking.ParkingSpot;
 import com.robert.ParkingLot.structures.Ticket;
+import com.robert.ParkingLot.structures.User;
 import com.robert.ParkingLot.vehicles.Vehicle;
 import dev.morphia.Datastore;
 import dev.morphia.DeleteOptions;
@@ -33,6 +34,11 @@ public class TicketsCollection {
     public List<Ticket> getTickets() {
         List<Ticket> tickets = ticketsDatastore.find(Ticket.class).iterator().toList();
         return tickets;
+    }
+
+    public void resetTicketsCollection() {
+        ticketsDatastore.find(Ticket.class)
+                .delete(new DeleteOptions().multi(true));
     }
 
 
