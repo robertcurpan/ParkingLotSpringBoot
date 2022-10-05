@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 public class JwtUtil {
     public static final long JWT_TOKEN_VALIDITY = 5*60*60;
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:robert}")
     private String secret;
 
     public String getUsernameFromToken(String token) {

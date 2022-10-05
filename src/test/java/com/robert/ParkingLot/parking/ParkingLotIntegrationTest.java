@@ -1,6 +1,7 @@
 package com.robert.ParkingLot.parking;
 
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
+import com.robert.ParkingLot.database.TicketsCollection;
 import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.exceptions.*;
 import com.robert.ParkingLot.structures.Ticket;
@@ -24,6 +25,8 @@ public class ParkingLotIntegrationTest
     @Autowired
     private VehiclesCollection vehiclesCollection;
     @Autowired
+    private TicketsCollection ticketsCollection;
+    @Autowired
     private ParkingLotService parkingLotService;
 
     public static final String COLOR = "red";
@@ -41,6 +44,7 @@ public class ParkingLotIntegrationTest
     void resetDatabaseCollections() {
         parkingSpotsCollection.resetParkingSpotsCollection();
         vehiclesCollection.resetVehiclesCollection();
+        ticketsCollection.resetTicketsCollection();
     }
 
     @Test

@@ -1,10 +1,13 @@
 package com.robert.ParkingLot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.robert.ParkingLot.authentication.UserDetails;
 import com.robert.ParkingLot.database.ParkingSpotsCollection;
+import com.robert.ParkingLot.database.TicketsCollection;
 import com.robert.ParkingLot.database.VehiclesCollection;
 import com.robert.ParkingLot.parking.Driver;
 import com.robert.ParkingLot.parking.ParkingSpot;
+import com.robert.ParkingLot.utils.JwtUtil;
 import com.robert.ParkingLot.vehicles.VehicleJson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,10 +36,17 @@ public class ParkingLotControllerIntegrationTest {
     @Autowired
     private VehiclesCollection vehiclesCollection;
 
+    @Autowired
+    private TicketsCollection ticketsCollection;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @BeforeEach
     public void initializeParkingLot() {
         parkingSpotsCollection.initializeParkingSpotsCollection();
         vehiclesCollection.resetVehiclesCollection();
+        ticketsCollection.resetTicketsCollection();
     }
 
     @AfterEach
@@ -52,10 +62,10 @@ public class ParkingLotControllerIntegrationTest {
 
         mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA")
                         .content(requestBodyJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingSpot.id", is(7)));
-
     }
 
 
@@ -69,6 +79,7 @@ public class ParkingLotControllerIntegrationTest {
 
         mockMvc.perform(post(urlGenerateParkingTicket)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA")
                         .content(requestBodyJson))
                 .andExpect(status().isOk());
 
@@ -77,6 +88,7 @@ public class ParkingLotControllerIntegrationTest {
 
         mockMvc.perform(post(urlLeaveParkingLot)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA")
                         .content(requestBodyJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingSpot.id", is(7)));
@@ -86,7 +98,8 @@ public class ParkingLotControllerIntegrationTest {
     public void getParkingSpotsTest() throws Exception {
         String url = "http://localhost:8080/getParkingSpots";
 
-        mockMvc.perform(get(url))
+        mockMvc.perform(get(url)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA"))
                 .andExpect(jsonPath("$.size()", is(9)));
     }
 
@@ -100,10 +113,12 @@ public class ParkingLotControllerIntegrationTest {
 
         mockMvc.perform(post(urlGenerateParkingTicket)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA")
                         .content(requestBodyJson))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get(url))
+        mockMvc.perform(get(url)
+                        .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJyb2JlcnQiLCJleHAiOjE2NjQ5OTA5MzcsImlhdCI6MTY2NDk3MjkzN30.AZhe18LRbL2FA9ykBysY4BaYaDvCj1598V9GvhrWQBzj5VgkaxsuRz7fLNSuh3jX25IaMqNVOLVjV_ou5M_0AA"))
                 .andExpect(jsonPath("$.size()", is(1)))
                 .andExpect(jsonPath("$[0].parkingSpot.id", is(7)));
     }

@@ -5,6 +5,7 @@ import com.robert.ParkingLot.exceptions.ParkingLotGeneralException;
 import com.robert.ParkingLot.structures.User;
 import com.robert.ParkingLot.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
