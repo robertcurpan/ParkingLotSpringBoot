@@ -54,6 +54,7 @@ public class ParkingLotControllerIntegrationTest {
         parkingSpotsCollection.resetParkingSpotsCollection();
     }
 
+    /*
     @Test
     public void generateParkingTicketTest() throws Exception {
         String url = "http://localhost:8080/generateParkingTicket";
@@ -122,5 +123,7 @@ public class ParkingLotControllerIntegrationTest {
                 .andExpect(jsonPath("$.size()", is(1)))
                 .andExpect(jsonPath("$[0].parkingSpot.id", is(7)));
     }
+
+     */
 
 }
