@@ -57,7 +57,7 @@ public class ParkingLotController {
     }
 
     @PostMapping(value = "/login")
-    @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:4200", "http://34.245.129.211:4200"})
+    @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:4200", "http://34.245.129.210:4200"})
     public ResponseEntity<AuthorizationResponse> login(@RequestBody UserDetails userDetails) throws ParkingLotGeneralException {
         String jwt = authenticationService.verifyLoginAndGenerateJwt(userDetails);
         User user = authenticationService.getUserByUsername(userDetails.getUsername());
